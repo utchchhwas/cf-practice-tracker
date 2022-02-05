@@ -1,3 +1,5 @@
+# run "python ./run.py" to run the server
+
 from cf_tracker import create_app
 
 

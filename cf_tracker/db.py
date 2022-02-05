@@ -6,7 +6,7 @@ from flask import g
 def get_db():
     if 'db' not in g:
         print("Log: Getting database connection")
-        g.db = cx_Oracle.connect(user="c##cf", password="cf", encoding="UTF-8")
+        g.db = cx_Oracle.connect(user="c##cf", password="cf", dsn="localhost/orcl", encoding="UTF-8")
 
     return g.db
 
