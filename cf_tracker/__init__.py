@@ -5,6 +5,9 @@ from flask import Flask, render_template, url_for
 # creates an instance of our flask app
 def create_app():
     app = Flask(__name__)
+    app.config.from_mapping(
+        SECRET_KEY='dev'
+    )
 
     @app.route("/")
     def index():
@@ -12,5 +15,8 @@ def create_app():
 
     from . import db
     db.init_app(app)
+
+    from . import auth
+    app.register_blueprint(auth.bp)
 
     return app

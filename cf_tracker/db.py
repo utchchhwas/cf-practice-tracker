@@ -7,7 +7,6 @@ def get_db():
     if 'db' not in g:
         print("Log: Getting database connection")
         g.db = cx_Oracle.connect(user="c##cf", password="cf", dsn="localhost/orcl", encoding="UTF-8")
-
     return g.db
 
 
@@ -20,6 +19,5 @@ def close_db(e=None):
         db.close()
 
 
-# 
 def init_app(app):
     app.teardown_appcontext(close_db)
