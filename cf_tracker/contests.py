@@ -1,20 +1,19 @@
 
 from flask import Blueprint, render_template, request
 
-from cf_tracker.db import get_db
+from cf_tracker.db import get_db, query_db
 
 bp = Blueprint("contests", __name__, url_prefix="/contests")
 
 @bp.route("/")
-def contests():
-    # if request.method == 'GET':
-    #     contestId = request.form['contestId']
-    #     contestName = request.form['contestName']
+@bp.route("/<contest_id>")
+def contests(contest_id=None):
+    print("in contest")
+    all_contests = query_db('''
+        SELECT * FROM CONTESTS
+    ''')
+    print(all_contests)
+    print(contest_id)
+    return render_template("contests/contests.html", all_contests=all_contests)
 
-        # cur = get_db().cursor()
-        # cur.execute('''
-        #         SELECT * FROM CONTESTS
-        #         ''')
-        # cur.rowfactory = lambda *args: dict()
-    return render_template("contests/contests.html")
 

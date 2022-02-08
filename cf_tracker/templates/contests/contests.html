@@ -14,21 +14,16 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        
-      </tr>
-      <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        
-      </tr>
-      <tr>
-        <th scope="row">3</th>
-        <td>Larry</td>
-        
-      </tr>
+
+      {% for contest in all_contests %}
+
+        <tr>
+            <td>{{contest['contest_id']}}</td>
+            <td>{{contest['contest_name']}}</td>
+        </tr>
+
+      {% endfor %}
+
     </tbody>
   </table>
   
