@@ -11,12 +11,20 @@ def get_db():
     return g.db.cursor()
 
 
+# commit database
+def commit_db():
+    db = g.pop("db", None)
+    if db is not None:
+        print('>> log: comitting database')
+        db.commit()
+
+
 # closes the db connection for the current session
 # the argument e has to be passed for using close_db with app.teardown_appcontext()
 def close_db(e=None):
     db = g.pop("db", None)
     if db is not None:
-        print(">> log: Closing database connection")
+        print(">> log: closing database connection")
         db.close()
 
 
