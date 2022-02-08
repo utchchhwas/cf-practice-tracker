@@ -2,7 +2,7 @@ import cx_Oracle
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .db import get_db
+from .db import get_db, query_db
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -38,13 +38,17 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        cur = get_db().cursor()
-        cur.execute('''
+        # cur = get_db().cursor()
+        # cur.execute('''
+        #     SELECT * FROM USERS
+        #     WHERE username = :username
+        #     ''', [username])
+        # cur.rowfactory = lambda *args: dict(zip([d[0].lower() for d in cur.description], args))
+        # user = cur.fetchone()
+        user = query_db('''
             SELECT * FROM USERS
             WHERE username = :username
-            ''', [username])
-        cur.rowfactory = lambda *args: dict(zip([d[0].lower() for d in cur.description], args))
-        user = cur.fetchone()
+            ''', [username], True)
         print(user)
 
         if user is None:
