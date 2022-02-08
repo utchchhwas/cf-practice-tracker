@@ -17,6 +17,9 @@ def create_app():
     db.init_app(app)
 
     from . import auth
-    app.register_blueprint(auth.bp)
+    app.register_blueprint(auth.bp) 
+
+    from . import contests
+    app.register_blueprint(contests.bp)
 
     return app
