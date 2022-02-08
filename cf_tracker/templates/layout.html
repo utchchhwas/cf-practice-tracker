@@ -47,22 +47,46 @@
               <a class="nav-link active" href="#">Problems</a>
             </li>
 
-            
-            <li class="nav-item dropdown">
+            <li class="nav-item">
+              <a class="nav-link active" href="#">To-do List</a>
+            </li>
 
-              <a class="nav-link dropdown-toggle disabled" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Stats
+            <!-- <li class="nav-item">
+              <a class="nav-link active" href="#">
+                {% if session['cf_handle'] %}
+                  {{ session['cf_handle']}}
+                {% endif %}
               </a>
-              
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">Solve Stats</a></li>
-              </ul>
+            </li> -->
+
+            <li class="nav-item">
+              {% if session['cf_handle'] %}
+                <a class="nav-link active" href="#">
+                  Codeforces: {{ session['cf_handle'] }}
+                </a>
+              {% endif %}
             </li>
 
             <li class="nav-item">
-              <a class="nav-link active" href="#">Todo List</a>
+              {% if g.username %}
+                <a class="nav-link active" href="{{ url_for('account.account', username=g.username) }}">
+                  My Account
+                </a>
+              {% endif %}
             </li>
-            
+
+            <li class="nav-item">
+              {% if session['username'] %}
+                <a class="nav-link active" href="{{ url_for('auth.logout') }}">
+                  Log Out
+                </a>
+              {% else %}
+                <a class="nav-link active" href="{{ url_for('auth.login') }}">
+                  Log In
+                </a>
+              {% endif %}
+            </li>
+
           </ul>
 
           <!-- <form class="d-flex">
@@ -73,7 +97,7 @@
         </div>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mb-lg-0">
+          <!-- <ul class="navbar-nav mb-lg-0">
             <li class="nav-item">
               <a href="#" class="nav-link mr-4 active">Login</a>
             </li>
@@ -81,7 +105,9 @@
               <a href="#" class="nav-link mr-4">Register</a>
 
             </li>
-          </ul>
+          </ul> -->
+
+          CF Handle
         </div>
         
       </div>

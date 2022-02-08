@@ -19,6 +19,9 @@ def create_app():
     from . import auth
     app.register_blueprint(auth.bp) 
 
+    from . import account
+    app.register_blueprint(account.bp)
+
     from . import contests
     app.register_blueprint(contests.bp)
 

@@ -1,6 +1,6 @@
-from distutils.log import error
+import functools
 import cx_Oracle
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from .db import commit_db, get_db, query_db
@@ -12,8 +12,8 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 def register():
     # handle post requests i.e. registration
     if request.method == 'POST':
-        username = request.form['username'].lower()
-        cf_handle = request.form['cf_handle'].lower()
+        username = request.form['username'].strip().lower()
+        cf_handle = request.form['cf_handle'].strip().lower()
         password = request.form['password']
         password_confirm = request.form['passwordConfirm']
 
@@ -52,7 +52,7 @@ def register():
 def login():
     # handle post requests i.e. login request
     if request.method == 'POST':
-        username = request.form['username'].lower()
+        username = request.form['username'].strip().lower()
         password = request.form['password']
 
         print(f'>> log: logging in user {username}')
@@ -85,3 +85,42 @@ def login():
                 flash(error)
 
     return render_template('auth/login.html')
+
+
+@bp.route('/logout')
+def logout():
+    username = session['username']
+    print(f'>> log: logging out user {username}')
+
+    session.clear()
+    return redirect(url_for('auth.login'))
+
+
+@bp.before_app_request
+def load_logged_in_user():
+    print(f'>> log: loading logged in user')
+
+    username = session.get('username')
+    if username is None:
+        g.username = None
+    else:
+        g.username = session['username']
+        g.cf_handle = query_db('''
+            SELECT CF_HANDLE FROM USERS
+            WHERE USERNAME = :username
+            ''', [username], True)['cf_handle']
+        
+        print('>> log: loaded username={}, cf_handle={}'.format(g.username, g.cf_handle))
+
+
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.username is None:
+            flash('Please log in first', 'error')
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
