@@ -26,6 +26,9 @@ def create_app():
     from . import contests
     app.register_blueprint(contests.bp)
 
+    from . import problems
+    app.register_blueprint(problems.bp)
+
     from . import update_db
 
     @app.route('/update_contests')
