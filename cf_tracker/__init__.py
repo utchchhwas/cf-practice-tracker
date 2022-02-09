@@ -1,4 +1,5 @@
-from flask import Flask, render_template, url_for
+import imp
+from flask import Flask, render_template, url_for, redirect
 
 
 # this is the application factory function
@@ -24,5 +25,17 @@ def create_app():
 
     from . import contests
     app.register_blueprint(contests.bp)
+
+    from . import update_db
+
+    @app.route('/update_contests')
+    def update_contests():
+        update_db.update_contests()
+        return redirect(url_for('index'))
+    
+    @app.route('/update_problems')
+    def update_problems():
+        update_db.update_problems()
+        return redirect(url_for('index'))
 
     return app

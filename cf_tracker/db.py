@@ -4,7 +4,8 @@ from flask import g
 
 # returns the db connection for the current session
 def get_db():
-    print(">> log: getting database connection")
+    # print(">> log: getting database connection")
+    
     if 'db' not in g:
         print(">> log: creating a new connection")
         g.db = cx_Oracle.connect(user="c##cf", password="cf", encoding="UTF-8")
@@ -13,7 +14,7 @@ def get_db():
 
 # commit database
 def commit_db():
-    db = g.pop("db", None)
+    db = g.get('db', None)
     if db is not None:
         print('>> log: comitting database')
         db.commit()
@@ -22,7 +23,7 @@ def commit_db():
 # closes the db connection for the current session
 # the argument e has to be passed for using close_db with app.teardown_appcontext()
 def close_db(e=None):
-    db = g.pop("db", None)
+    db = g.pop('db', None)
     if db is not None:
         print(">> log: closing database connection")
         db.close()

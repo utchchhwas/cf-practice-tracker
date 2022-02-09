@@ -1,14 +1,31 @@
-import cx_Oracle
+import requests
+import json
+import time
+import os
 
-db = cx_Oracle.connect(user="c##cf", password="cf", encoding="UTF-8")
 
-cur = db.cursor()
-cur.execute('select * from users')
-def makeNamedTupleFactory(cursor):
-    columnNames = [d[0].lower() for d in cursor.description]
-    import collections
-    Row = collections.namedtuple('Row', columnNames)
-    return Row
+def get_problem_list():
+    start_time = time.time()
+    url = 'https://codeforces.com/api/problemset.problems'
+    response = requests.get(url)
+    end_time = time.time()
+    print('Request took {0:.2f}s'.format(end_time - start_time))
 
-cur.rowfactory = makeNamedTupleFactory(cur)
-print(cur.fetchone().username)
+    json_obj = json.loads(response.text)
+    if json_obj['status'] == 'OK':
+        problem_list = json_obj['result']['problems']
+        print('Fetched {} {}'.format(len(problem_list),
+              'problems' if len(problem_list) > 1 else 'problem'))
+        return problem_list
+    else:
+        raise Exception(json_obj['comment'])
+
+
+def save_problem_list():
+    problem_list = get_problem_list()
+    parent_path = 'C:\\Users\\utchchhwas\\OneDrive\\Documents\\Competitive Programming\\CP Automation with Python'
+    with open(os.path.join(parent_path, 'problem_list.json'), 'w', encoding='utf-8') as json_file:
+        json_file.write(json.dumps(problem_list, indent=4))
+
+
+# save_problem_list()
