@@ -40,6 +40,7 @@ def register():
         # redirect to login page if no error
         if len(errors) == 0:
             print(f'>> log: user {username} successfully registered')
+            flash('Account registration successful')
             return redirect(url_for('auth.login'))
         else:
             for error in errors:
@@ -79,7 +80,7 @@ def login():
             session.clear()  # clear any existing session data
             session['username'] = user['username']  # set username for current session
             session['cf_handle'] = user['cf_handle']  # set cf_handle for current session
-            return redirect(url_for('index'))
+            return redirect(url_for('account.account', username=username))
         else:
             for error in errors:
                 flash(error)
