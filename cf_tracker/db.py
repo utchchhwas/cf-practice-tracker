@@ -7,7 +7,7 @@ def get_db():
     # print(">> log: getting database connection")
     
     if 'db' not in g:
-        print(">> log: creating a new connection")
+        # print(">> log: creating a new connection")
         g.db = cx_Oracle.connect(user="c##cf", password="cf", encoding="UTF-8")
     return g.db.cursor()
 

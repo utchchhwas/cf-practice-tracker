@@ -6,7 +6,6 @@ from cf_tracker.db import get_db, query_db
 bp = Blueprint("problems", __name__, url_prefix="/problems")
 
 @bp.route("/")
-@bp.route("/<problem_id>")
 def problems(problem_id=None):
     all_problems = query_db('''
         SELECT CONTEST_ID, PROBLEM_INDEX, PROBLEM_NAME, PROBLEM_RATING,
@@ -17,5 +16,4 @@ def problems(problem_id=None):
         ''')
 
     return render_template("problems/problems.html", all_problems=all_problems[:100])
-
 
