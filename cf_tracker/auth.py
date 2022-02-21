@@ -213,7 +213,7 @@ def register():
 
         else:
             for error in errors:
-                flash(error)
+                flash(error, category='danger')
 
     return render_template('auth/register.html')
 
@@ -254,11 +254,11 @@ def login():
             session['username'] = user['username']  # set username for current session
             session['cf_handle'] = user['cf_handle']  # set cf_handle for current session
 
-            return redirect(url_for('account.account', username=username))
+            return redirect(url_for('auth.user', username=username))
 
         else:
             for error in errors:
-                flash(error)
+                flash(error, category='danger')
 
     return render_template('auth/login.html')
 
@@ -274,6 +274,7 @@ def logout():
 
 @bp.before_app_request
 def load_logged_in_user():
+
     print(f'>> log: loading logged in user')
 
     username = session.get('username')
@@ -282,9 +283,13 @@ def load_logged_in_user():
     else:
         g.username = session['username']
         g.cf_handle = query_db('''
-            SELECT CF_HANDLE FROM USERS
-            WHERE USERNAME = :username
-            ''', [username], True)['cf_handle']
+            SELECT CF_HANDLE 
+            FROM USERS
+            WHERE 
+                USERNAME = :username
+            ''', {
+                'username': username
+            }, True)['cf_handle']
         
         print('>> log: loaded username={}, cf_handle={}'.format(g.username, g.cf_handle))
 
@@ -331,13 +336,9 @@ def user(username):
         new_password2 = request.form['new_password2']
 
         real_password = query_db('''
-            SELECT PASSWORD
-            FROM USERS
-            WHERE 
-                username = :username
-            ''', {
-                'username': username
-            }, fetchone=True)['password']
+            SELECT PASSWORD FROM USERS
+            WHERE username = :username
+            ''', [username], fetchone=True)['password']
 
 
         errors = []
@@ -357,7 +358,25 @@ def user(username):
 
         if len(errors) == 0:
 
-            insert_or_update_cf_user(cf_handle)
+            current_cf_handle = query_db('''
+                SELECT CF_HANDLE FROM USERS
+                WHERE USERNAME = :username
+                ''', [username], True)['cf_handle']
+
+            if current_cf_handle != cf_handle:
+
+                insert_or_update_cf_user(cf_handle)
+
+                get_db().execute('''
+                    UPDATE USERS
+                    SET CF_HANDLE = :cf_handle
+                    WHERE USERNAME = :username
+                    ''', [cf_handle, username])
+                commit_db()
+
+                flash('Codeforces handle successfully updated')
+
+                g.cf_handle = cf_handle
             
             if len(new_password1) > 0:
 
@@ -379,6 +398,6 @@ def user(username):
             for error in errors:
                 flash(error)
 
-    return render_template('auth/user.html', username=username, cf_handle=g.cf_handle)
+    return render_template('auth/user.html')
 
 

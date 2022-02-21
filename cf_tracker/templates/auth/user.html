@@ -13,14 +13,14 @@
         <div class="mb-3 row">
             <label for="username" class="col-sm-2 col-form-label">Username</label>
             <div class="col-sm-10">
-                <input type="text" name="username" readonly class="form-control-plaintext" id="username" value="{{ username }}">
+                <input type="text" name="username" readonly class="form-control-plaintext" id="username" value="{{ g.username }}">
             </div>
         </div>
 
         <div class="mb-3 row">
             <label for="cf_handle" class="col-sm-2 col-form-label">Codeforces Handle</label>
             <div class="col-sm-10">
-                <input type="text" name="cf_handle" class="form-control" id="cf_handle" value="{{ cf_handle }}" required>
+                <input type="text" name="cf_handle" class="form-control" id="cf_handle" value="{{ g.cf_handle }}" required>
             </div>
         </div>
 

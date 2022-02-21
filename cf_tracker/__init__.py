@@ -1,4 +1,4 @@
-import imp
+
 from flask import Flask, render_template, url_for, redirect
 
 
@@ -20,25 +20,23 @@ def create_app():
     from . import auth
     app.register_blueprint(auth.bp) 
 
-    from . import account
-    app.register_blueprint(account.bp)
-
     from . import contests
     app.register_blueprint(contests.bp)
 
     from . import problems
     app.register_blueprint(problems.bp)
 
-    from . import update_db
 
-    @app.route('/update_contests')
-    def update_contests():
-        update_db.update_contests()
-        return redirect(url_for('index'))
-    
-    @app.route('/update_problems')
-    def update_problems():
-        update_db.update_problems()
-        return redirect(url_for('index'))
+    # from . import update_db
+# 
+#     @app.route('/update_contests')
+#     def update_contests():
+#         update_db.update_contests()
+#         return redirect(url_for('index'))
+#     
+#     @app.route('/update_problems')
+#     def update_problems():
+#         update_db.update_problems()
+#         return redirect(url_for('index'))
 
     return app
