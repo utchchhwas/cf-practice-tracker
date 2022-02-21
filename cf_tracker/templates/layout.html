@@ -69,7 +69,7 @@
 
             <li class="nav-item">
               {% if g.username %}
-                <a class="nav-link active" href="{{ url_for('account.account', username=g.username) }}">
+                <a class="nav-link active" href="{{ url_for('auth.user', username=g.username) }}">
                   My Account
                 </a>
               {% endif %}

@@ -220,8 +220,9 @@ def register():
 
 @bp.route("/login", methods=('GET', 'POST'))
 def login():
-    # handle post requests i.e. login request
+
     if request.method == 'POST':
+
         username = request.form['username'].strip().lower()
         password = request.form['password']
 
@@ -230,32 +231,36 @@ def login():
         user = query_db('''
             SELECT * FROM USERS
             WHERE username = :username
-            ''', [username], True)
+            ''', {
+                'username': username
+            }, fetchone=True)
 
-        print(f'>> log: user details: {user}')
+        print(f'>> log: user={user}')
 
         errors = []
-        # check for errors
+
         if user is None:
-            errors.append(f'Invalid username: {username}')
+            errors.append(f'Invalid username [{username}]')
         elif not check_password_hash(user['password'], password):
             errors.append(f'Invalid password')
 
         print(f'>> log: errors: {errors}')
         
-        # log in user if no error
         if len(errors) == 0:
+
             print(f'>> log: loggin in user {username}')
+
             session.clear()  # clear any existing session data
             session['username'] = user['username']  # set username for current session
             session['cf_handle'] = user['cf_handle']  # set cf_handle for current session
+
             return redirect(url_for('account.account', username=username))
+
         else:
             for error in errors:
                 flash(error)
 
     return render_template('auth/login.html')
-
 
 @bp.route('/logout')
 def logout():
@@ -263,6 +268,7 @@ def logout():
     print(f'>> log: logging out user {username}')
 
     session.clear()
+
     return redirect(url_for('auth.login'))
 
 
@@ -284,13 +290,95 @@ def load_logged_in_user():
 
 
 def login_required(view):
+
     @functools.wraps(view)
     def wrapped_view(**kwargs):
+
         if g.username is None:
-            flash('Please log in first', 'error')
+            flash('Please log in first')
             return redirect(url_for('auth.login'))
 
         return view(**kwargs)
 
     return wrapped_view
+
+
+
+def check_logged_in_user(username):
+    return username == g.username
+
+
+@bp.route('user/<username>', methods=('GET', 'POST'))
+@login_required
+def user(username):
+
+    if not check_logged_in_user(username):
+
+        logout()
+
+        flash('Please log in first')
+
+        return redirect(url_for('auth.login'))
+
+
+    print(f'>> log: showing account page for {username}')
+
+    if request.method == 'POST':
+
+        cf_handle = request.form['cf_handle'].strip().lower()
+        password = request.form['password']
+        new_password1 = request.form['new_password1']
+        new_password2 = request.form['new_password2']
+
+        real_password = query_db('''
+            SELECT PASSWORD
+            FROM USERS
+            WHERE 
+                username = :username
+            ''', {
+                'username': username
+            }, fetchone=True)['password']
+
+
+        errors = []
+
+        if not is_valid_cf_handle(cf_handle):
+            errors.append(f'Invalid Codeforces handle [{cf_handle}]')
+
+        if len(new_password1) > 0 or len(new_password2) > 0:
+            if new_password1 != new_password2:
+                errors.append('The passwords do not match')
+        
+        if not check_password_hash(real_password, password):
+            errors.append(f'Invalid current password')
+
+
+        print(f'>> log: errors = {errors}')
+
+        if len(errors) == 0:
+
+            insert_or_update_cf_user(cf_handle)
+            
+            if len(new_password1) > 0:
+
+                get_db().execute('''
+                    UPDATE USERS
+                    SET 
+                        PASSWORD = :password
+                    WHERE 
+                        USERNAME = :username
+                    ''', {
+                        'username': username,
+                        'password': generate_password_hash(new_password1)
+                    })
+                commit_db()
+
+                flash('Password successfully updated', 'success')
+
+        else:
+            for error in errors:
+                flash(error)
+
+    return render_template('auth/user.html', username=username, cf_handle=g.cf_handle)
+
 
