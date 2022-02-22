@@ -4,42 +4,98 @@
 
 <h1>Index page</h1>
 
-<div class="container" style="width: 60%;">
-  <canvas id="rating_chart"></canvas>
+
+<div class="container">
+
+    <div class="container">    
+        <img src="{{ cf_user['title_photo_url'] }}" class="img-fluid" alt="Codeforces title photo">
+    </div>
+
+    <p>{{ cf_handle }}</p>
+
+    {% if cf_user['first_name'] %}
+        <p>        
+            {{ cf_user['first_name'] }} {{ cf_user['last_name'] }}
+        </p>
+    {% endif %}
+
+    <p>Rating: {{ cf_user['rating'] }} (max. {{ cf_user['max_rating'] }})</p>
+
+    <p>Rating: {{ cf_user['rank'] }} (max. {{ cf_user['max_rank'] }})</p>
+
+    
+    
 </div>
 
 
+<div class="container">
+    
+    <h1>Codeforces Activity</h1>
+    
+    <p>Tried {{ total_problems_tried }}</p>
+    
+    <p>Solved {{ total_problems_solved }}</p>
+
+    <p>Solved last week {{ solved_last_week }}</p>
+    <p>Solved last month {{ solved_last_month }}</p>
+    <p>Solved last year {{ solved_last_year }}</p>
+
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container" style="width: 60%;">
+    <canvas id="ratingChart"></canvas>
+</div>
+
 
 <script>
 
-  const myChart = new Chart(
-    document.getElementById('rating_chart'),
-    {
-      type: 'bar',
-
-      data: {
-
-        labels: {{ rating_chart['label'] | tojson }},
-
+    const ratingChartData = {
+        labels: {{ rating_chart['labels'] | tojson }},
         datasets: [{
-          
-          label: 'Solved Problems by Rating',
-          
-          backgroundColor: 'rgb(54, 162, 235)',
-
-          borderColor: 'rgb(255, 99, 132)',
-
-          data: {{ rating_chart['value'] | tojson }},
-
+            label: {{ cf_handle | tojson }},
+            
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1,
+            
+            data: {{ rating_chart['data'] | tojson }},
         }]
-      },
+    };
 
-      options: { 
+    const ratingChartConfig = {
+        type: 'bar',
+        data: ratingChartData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Solved Problems by Rating',
+                    color: 'black',
+                    font: {
+                        weight: 'bold',
+                        size: 24
+                    }
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    };
 
-      }
-    }
-  );
+    const ratingChart = new Chart(
+        document.getElementById('ratingChart'),
+        ratingChartConfig
+    );
 
 </script>
 

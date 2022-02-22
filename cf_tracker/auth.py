@@ -1,5 +1,6 @@
 import functools
 from datetime import datetime
+from tabnanny import check
 import codeforces_api
 import cx_Oracle
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
@@ -366,6 +367,7 @@ def user(username):
             if current_cf_handle != cf_handle:
 
                 insert_or_update_cf_user(cf_handle)
+                insert_or_update_cf_user_submissions(cf_handle)
 
                 get_db().execute('''
                     UPDATE USERS
@@ -400,4 +402,81 @@ def user(username):
 
     return render_template('auth/user.html')
 
+
+@bp.route('/admin/login', methods=('GET', 'POST'))
+def admin_login():
+
+    if request.method == 'POST':
+
+        username = request.form['username'].strip().lower()
+        password = request.form['password']
+
+        print(f'>> log: logging in admin user {username}')
+
+        user = query_db('''
+            SELECT * FROM USERS
+            WHERE username = :username
+            ''', {
+                'username': username
+            }, fetchone=True)
+
+        print(f'>> log: user={user}')
+
+        errors = []
+
+        if user is None or user['is_admin'] != 'Y':
+            errors.append(f'Invalid admin user [{username}]')
+        elif not check_password_hash(user['password'], password):
+            errors.append(f'Invalid password')
+
+        print(f'>> log: errors: {errors}')
+        
+        if len(errors) == 0:
+
+            print(f'>> log: loggin in admin user {username}')
+
+            session.clear()  # clear any existing session data
+            session['username'] = user['username']  # set username for current session
+            session['admin_username'] = user['username']
+            session['cf_handle'] = user['cf_handle']  # set cf_handle for current session
+
+            return redirect(url_for('auth.admin_page', admin_username=username))
+
+        else:
+            for error in errors:
+                flash(error, category='danger')
+    return render_template('auth/admin_login.html')
+
+
+def check_admin_user(admin_username):
+
+    print(f'>> log: checking admin_username={admin_username}')
+
+    session_admin_username = session.get('admin_username')
+
+    print(f'>> log: session_admin_username={session_admin_username}')
+
+    return session_admin_username is not None and session_admin_username == admin_username
+
+
+@bp.route('/admin_page/<admin_username>', methods=('GET', 'POST'))
+def admin_page(admin_username):
+
+    print(f'>> log: showing admin page [admin_username={admin_username}]')
+
+    if not check_admin_user(admin_username):
+
+        logout()
+
+        flash('Please log in as admin')
+
+        return redirect(url_for('auth.admin_login'))
+
+
+    if request.method == 'POST':
+
+        print(f'>> log: received post request in admin')
+
+
+    return render_template('auth/admin_page.html')
 
