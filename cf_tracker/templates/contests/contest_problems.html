@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="container">
+  <table class="table table-striped table-hover table-bordered">
+
+    <thead>
+      <tr>
+        <th scope="col">Problem Index</th>
+        <th scope="col">Problem Name</th>
+
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for problem in contest_problems %}
+
+      <tr>
+        <td>{{ problem['problem_index'] }}</td>
+        <td>{{ problem['problem_name'] }}</td>
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock body %}
