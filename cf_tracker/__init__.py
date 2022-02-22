@@ -1,5 +1,6 @@
 
 from flask import Flask, render_template, url_for, redirect
+from .db import get_db, query_db
 
 
 # this is the application factory function
@@ -12,10 +13,17 @@ def create_app():
 
     @app.route("/")
     def index():
-        return render_template("index.html")
+        
+        labels = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
+        data = [10, 20, 30, 10, 30, 20, 50, 10]
+
+        return render_template("index.html", labels=labels, data=data)
 
     from . import db
     db.init_app(app)
+
+    from . import home
+    app.register_blueprint(home.bp)
 
     from . import auth
     app.register_blueprint(auth.bp) 

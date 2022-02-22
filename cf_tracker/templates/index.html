@@ -2,4 +2,45 @@
 
 {% block body %}
 
+<h1>Index page</h1>
+
+<div class="container" style="width: 60%;">
+  <canvas id="rating_chart"></canvas>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+  const myChart = new Chart(
+    document.getElementById('rating_chart'),
+    {
+      type: 'bar',
+
+      data: {
+
+        labels: {{ rating_chart['label'] | tojson }},
+
+        datasets: [{
+          
+          label: 'Solved Problems by Rating',
+          
+          backgroundColor: 'rgb(54, 162, 235)',
+
+          borderColor: 'rgb(255, 99, 132)',
+
+          data: {{ rating_chart['value'] | tojson }},
+
+        }]
+      },
+
+      options: { 
+
+      }
+    }
+  );
+
+</script>
+
 {% endblock body %}
