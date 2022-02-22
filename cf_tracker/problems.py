@@ -34,7 +34,7 @@ def problems(problem_id=None):
         ORDER BY PROBLEM_RATING
         ''', [rating_low, rating_high])
 
-    return render_template("problems/problems.html", all_problems=all_problems)
+    return render_template("problems/problems.html", all_problems=all_problems[:10])
 
 
 
