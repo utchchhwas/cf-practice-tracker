@@ -1,6 +1,7 @@
 import functools
 from datetime import datetime
 from tabnanny import check
+from turtle import update
 import codeforces_api
 import cx_Oracle
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
@@ -129,6 +130,55 @@ def insert_or_update_cf_user_submissions(cf_handle):
     print(f'>> log: successfully updated SUBMISSIONS [cf_handle={cf_handle}]')
 
 
+def insert_or_update_contest_participation(cf_handle):
+    
+    print(f'>> log: fetching rating change information from codeforces api [cf_handle={cf_handle}]')
+
+    rcs = CodeforcesApi().user_rating(cf_handle)
+
+    print(f'>> log: fetched {len(rcs)} rating changes')
+
+
+    print(f'>> log: updating CONTEST_PARTICIPATION [cf_handle={cf_handle}]')
+
+    for rc in rcs:
+
+        get_db().execute('''
+            MERGE INTO CONTEST_PARTICIPATIONS
+            USING dual ON (
+                CF_HANDLE = :cf_handle
+                AND CONTEST_ID = :contest_id
+            )
+
+            WHEN NOT MATCHED THEN 
+                INSERT (
+                    CF_HANDLE,
+                    CONTEST_ID,
+                    CONTEST_RANK,
+                    OLD_RATING,
+                    NEW_RATING
+                )
+                VALUES (
+                    :cf_handle,
+                    :contest_id,
+                    :contest_rank,
+                    :old_rating,
+                    :new_rating
+                )
+            ''',
+            {
+                'cf_handle': cf_handle,
+                'contest_id': rc.contest_id,
+                'contest_rank': rc.rank,
+                'old_rating': rc.old_rating,
+                'new_rating': rc.new_rating
+            }
+        )
+    commit_db()
+
+    print(f'>> log: successfully updated CONTEST_PARTICIPATION [cf_handle={cf_handle}]')
+
+
 def insert_user(user: dict):
 
     print(f'>> log: inserting user={user["username"]} into USERS')
@@ -199,6 +249,7 @@ def register():
 
             insert_or_update_cf_user(cf_handle)
             insert_or_update_cf_user_submissions(cf_handle)
+            insert_or_update_contest_participation(cf_handle)
 
             insert_user({
                 'username': username,
@@ -368,6 +419,7 @@ def user(username):
 
                 insert_or_update_cf_user(cf_handle)
                 insert_or_update_cf_user_submissions(cf_handle)
+                insert_or_update_contest_participation(cf_handle)
 
                 get_db().execute('''
                     UPDATE USERS
@@ -459,6 +511,124 @@ def check_admin_user(admin_username):
     return session_admin_username is not None and session_admin_username == admin_username
 
 
+
+def update_contests():
+    
+    print(f'>> log: fetching contests information from codeforces api')
+
+    contests = CodeforcesApi().contest_list()
+
+    print(f'>> log: fetched {len(contests)} contests')
+
+
+    print(f'>> log: updating CONTESTS')
+
+    for contest in contests:
+
+        get_db().execute('''
+            MERGE INTO CONTESTS
+            USING dual ON (CONTEST_ID = :contest_id)
+
+            WHEN NOT MATCHED THEN 
+                INSERT (
+                    CONTEST_ID,
+                    CONTEST_NAME,
+                    START_TIME
+                )
+                VALUES (
+                    :contest_id,
+                    :contest_name,
+                    TO_DATE(:start_time, 'YYYY-MM-DD HH24:MI:SS')
+                )
+            ''',
+            {
+                'contest_id': contest.id,
+                'contest_name': contest.name,
+                'start_time': str(datetime.fromtimestamp(contest.start_time_seconds))
+            }
+        )
+    commit_db()
+
+    print(f'>> log: successfully updated CONTESTS')
+
+
+
+def update_problems():
+
+    print(f'>> log: fetching problems information from codeforces api')
+
+    problems = CodeforcesApi().problemset_problems()['problems']
+
+    print(f'>> log: fetched {len(problems)} problems')
+
+
+    print(f'>> log: updating PROBLEMS and PROBLEM_TAGS')
+
+    for problem in problems:
+        problem: codeforces_api.Problem
+
+        get_db().execute('''
+        
+            MERGE INTO PROBLEMS
+            USING dual ON (
+                CONTEST_ID = :contest_id 
+                AND PROBLEM_INDEX = :problem_index
+            )
+            WHEN NOT MATCHED THEN 
+                INSERT (
+                    CONTEST_ID,
+                    PROBLEM_INDEX,
+                    PROBLEM_NAME,
+                    PROBLEM_RATING
+                )
+                VALUES (
+                    :contest_id,
+                    :problem_index,
+                    :problem_name,
+                    :problem_rating
+                )
+            ''',
+            {
+                'contest_id': problem.contest_id,
+                'problem_index': problem.index,
+                'problem_name': problem.name,
+                'problem_rating': problem.rating
+            }
+        )
+
+        for tag in problem.tags:
+            get_db().execute('''
+                MERGE INTO PROBLEM_TAGS
+                USING dual ON (
+                    CONTEST_ID = :contest_id 
+                    AND PROBLEM_INDEX = :problem_index
+                    AND TAG_NAME = :tag_name
+                )
+                WHEN NOT MATCHED THEN 
+                    INSERT (
+                        CONTEST_ID,
+                        PROBLEM_INDEX,
+                        TAG_NAME
+                    )
+                    VALUES (
+                        :contest_id,
+                        :problem_index,
+                        :tag_name
+                    )
+                ''',
+                {
+                    'contest_id': problem.contest_id,
+                    'problem_index': problem.index,
+                    'tag_name': tag
+                }
+            )
+
+    commit_db()
+
+    print(f'>> log: successfully updated PROBLEMS and PROBLEM_TAGS')
+
+
+
 @bp.route('/admin_page/<admin_username>', methods=('GET', 'POST'))
 def admin_page(admin_username):
 
@@ -475,7 +645,10 @@ def admin_page(admin_username):
 
     if request.method == 'POST':
 
-        print(f'>> log: received post request in admin')
+        print(f'>> log: updating database')
+
+        update_contests()
+        update_problems()
 
 
     return render_template('auth/admin_page.html')
