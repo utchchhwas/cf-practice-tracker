@@ -2,6 +2,25 @@
 
 {% block body %}
 
+<div>
+  <form method="post" class="row g-3">
+    <!-- <div class="col-auto">
+      <label for="staticEmail2" class="visually-hidden">Email</label>
+      <input type="text" readonly class="form-control-plaintext" id="staticEmail2" value="email@example.com">
+    </div> -->
+    <div class="col-auto">
+      <!-- <label for="">Contest ID</label> -->
+      <input name="contest_id" type="text" class="form-control" id="contest_id" placeholder="Contest ID">
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary mb-3">Search by Contest ID</button>
+    </div>
+  </form>
+</div>
+
+
+
+
 <div class="container">
   <table class="table table-striped table-hover table-bordered">
 
@@ -19,7 +38,7 @@
       {% for contest in all_contests %}
 
       <tr>
-        <td><a href="{{ contest['contest_link'] }}">{{ contest['contest_id'] }}</a></td>
+        <td><a href="{{ url_for('contests.contest', contest_id=contest['contest_id']) }}">{{ contest['contest_id'] }}</a></td>
         <td>{{ contest['contest_name'] }}</td>
         <td>{{ contest['start_time'] }}</td>
       </tr>
