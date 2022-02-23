@@ -22,15 +22,17 @@
   </form>
 </div>
 
+
 <div class="container">
+
   <table class="table table-striped table-hover table-bordered">
 
     <thead>
       <tr>
         <th scope="col">Problem ID</th>
-        <th scope="col">Problem Name</th>
-        <th scope="col">Difficulty Rating</th>
-
+        <th scope="col">Name</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Tags</th>
       </tr>
     </thead>
 
@@ -39,9 +41,15 @@
       {% for problem in all_problems %}
 
       <tr>
+
         <td><a href="{{ url_for('problems.problem', contest_id=problem['contest_id'], problem_index=problem['problem_index']) }}">{{ problem['problem_id'] }}</a></td>
-        <td>{{ problem['problem_name'] }}</td>
+        
+        <td {% if problem['solved'] == True %}class="table-success"{% endif %}>{{ problem['problem_name'] }}</td>
+
         <td>{{ problem['problem_rating'] }}</td>
+
+        <td>{{ ', '.join(problem['tags']) }}</td>
+
       </tr>
 
       {% endfor %}
@@ -50,5 +58,10 @@
   </table>
 
 </div>
+
+<div class="container p-3">
+  {{ pagination.links }}
+</div>
+
 
 {% endblock body %}

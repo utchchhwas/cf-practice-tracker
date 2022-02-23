@@ -7,10 +7,47 @@ from .auth import check_logged_in_user
 import markdown
 import markdown.extensions.fenced_code
 import markdown.extensions.codehilite
+from flask_paginate import Pagination, get_page_args
 
 from cf_tracker.db import get_db, query_db, commit_db
 
 bp = Blueprint("problems", __name__, url_prefix="")
+
+
+def get_problem_tags(contest_id, problem_index):
+
+    res = query_db('''
+            SELECT TAG_NAME
+            FROM PROBLEM_TAGS
+            WHERE
+                CONTEST_ID = :contest_id
+                AND PROBLEM_INDEX = :problem_index
+            ORDER BY
+                TAG_NAME ASC
+        ''', [contest_id, problem_index])
+
+    return [row['tag_name'] for row in  res]
+
+
+def is_solved(cf_handle, contest_id, problem_index):
+
+    num = query_db('''
+        SELECT COUNT(*) NUM
+        FROM SUBMISSIONS
+        WHERE
+            CF_HANDLE = :cf_handle
+            AND CONTEST_ID = :contest_id
+            AND PROBLEM_INDEX = :problem_index
+            AND VERDICT = 'OK'
+    ''', [cf_handle, contest_id, problem_index], fetchone=True)['num']
+
+    return num > 0
+
+
+@bp.route('/new_problems', methods=('GET', 'POST'))
+def new_problems():
+
+    return 'new problems page'
 
 @bp.route("/problems", methods=('GET', 'POST'))
 def problems():
@@ -25,6 +62,7 @@ def problems():
             problem_rating_high=4000
         if problem_rating_low == "":
             problem_rating_low=800
+
         return redirect(url_for("problems.problems", problem_rating_low=problem_rating_low, problem_rating_high=problem_rating_high))
 
     rating_low = request.args.get("problem_rating_low", 800)
@@ -32,6 +70,7 @@ def problems():
 
     print(rating_high)
     print(rating_low)
+
     all_problems = query_db('''
         SELECT CONTEST_ID, PROBLEM_INDEX, PROBLEM_NAME, PROBLEM_RATING,
             (TO_CHAR(CONTEST_ID) || PROBLEM_INDEX) PROBLEM_ID, 
@@ -41,7 +80,28 @@ def problems():
         ORDER BY PROBLEM_RATING
         ''', [rating_low, rating_high])
 
-    return render_template("problems/problems.html", all_problems=all_problems[:10])
+
+    for problem in all_problems:
+
+        problem['tags'] = get_problem_tags(problem['contest_id'], problem['problem_index'])
+
+        problem['solved'] = is_solved(g.cf_handle, problem['contest_id'], problem['problem_index'])
+
+    page, per_page, offset = get_page_args(
+        page_parameter="p", per_page_parameter="pp", pp=100
+    )
+
+    pagination = Pagination(
+        p=page,
+        pp=per_page,
+        total=len(all_problems),
+        page_parameter="p",
+        per_page_parameter="pp",
+    )
+
+    return render_template("problems/problems.html", 
+            all_problems=all_problems[offset:offset+per_page],
+            pagination=pagination)
 
 
 def get_problem(contest_id, problem_index):
@@ -77,36 +137,6 @@ def get_problem_log(username, contest_id, problem_index):
                 AND CONTEST_ID = :contest_id
                 AND PROBLEM_INDEX = :problem_index
         ''', [username, contest_id, problem_index], fetchone=True)
-
-
-def get_problem_tags(contest_id, problem_index):
-
-    res = query_db('''
-            SELECT TAG_NAME
-            FROM PROBLEM_TAGS
-            WHERE
-                CONTEST_ID = :contest_id
-                AND PROBLEM_INDEX = :problem_index
-            ORDER BY
-                TAG_NAME ASC
-        ''', [contest_id, problem_index])
-
-    return [row['tag_name'] for row in  res]
-
-
-def is_solved(cf_handle, contest_id, problem_index):
-
-    num = query_db('''
-        SELECT COUNT(*) NUM
-        FROM SUBMISSIONS
-        WHERE
-            CF_HANDLE = :cf_handle
-            AND CONTEST_ID = :contest_id
-            AND PROBLEM_INDEX = :problem_index
-            AND VERDICT = 'OK'
-    ''', [cf_handle, contest_id, problem_index], fetchone=True)['num']
-
-    return num > 0
 
 
 def get_problem_submissions(cf_handle, contest_id, problem_index):
