@@ -374,7 +374,11 @@ def discussion(contest_id, problem_index):
         print(f'>> log: content={d["content"]}')
 
 
-    return render_template('problems/discussions.html', contest_id=contest_id, problem_index=problem_index, dis=dis)
+    return render_template('problems/discussions.html', 
+                            contest_id=contest_id, 
+                            problem_index=problem_index, 
+                            dis=dis,
+                            )
 
 
 def insert_discussion(username, contest_id, problem_index, content):

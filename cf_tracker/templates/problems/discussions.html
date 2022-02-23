@@ -2,7 +2,9 @@
 
 {% block body %}
 
-<h1>Discussion Page</h1>
+<div class="container p-3">
+    <h1>Discussion Page</h1>
+</div>
 
 <div class="container p-3">
     <a class="btn btn-primary btn-lg p-1 d-flex justify-content-center" href="{{ url_for('problems.new_discussion', username=g.username, contest_id=contest_id, problem_index=problem_index) }}" role="button">New Discussion</a>
@@ -28,5 +30,6 @@
         </div>
     </div>
 {% endfor %}
+  
 
 {% endblock body %}

@@ -91,40 +91,46 @@ def insert_or_update_cf_user_submissions(cf_handle):
     for sub in subs:
         sub: codeforces_api.Submission
 
-        get_db().execute('''
-            MERGE INTO SUBMISSIONS
-            USING dual ON (SUBMISSION_ID = :submission_id)
+        try:
+            get_db().execute('''
+                MERGE INTO SUBMISSIONS
+                USING dual ON (SUBMISSION_ID = :submission_id)
 
-            WHEN NOT MATCHED THEN 
-                INSERT (
-                    SUBMISSION_ID,
-                    CF_HANDLE,
-                    CONTEST_ID,
-                    PROBLEM_INDEX,
-                    CREATION_TIME,
-                    PROGRAMMING_LANG,
-                    VERDICT
-                )
-                VALUES (
-                    :submission_id,
-                    :cf_handle,
-                    :contest_id,
-                    :problem_index,
-                    TO_DATE(:creation_time, 'YYYY-MM-DD HH24:MI:SS'),
-                    :programming_lang,
-                    :verdict
-                )
-            ''',
-            {
-                'submission_id': sub.id,
-                'cf_handle': cf_handle,
-                'contest_id': sub.contest_id,
-                'problem_index': sub.problem.index,
-                'creation_time': str(datetime.fromtimestamp(sub.creation_time_seconds)),
-                'programming_lang': sub.programming_language,
-                'verdict': sub.verdict
-            }
-        )
+                WHEN NOT MATCHED THEN 
+                    INSERT (
+                        SUBMISSION_ID,
+                        CF_HANDLE,
+                        CONTEST_ID,
+                        PROBLEM_INDEX,
+                        CREATION_TIME,
+                        PROGRAMMING_LANG,
+                        VERDICT
+                    )
+                    VALUES (
+                        :submission_id,
+                        :cf_handle,
+                        :contest_id,
+                        :problem_index,
+                        TO_DATE(:creation_time, 'YYYY-MM-DD HH24:MI:SS'),
+                        :programming_lang,
+                        :verdict
+                    )
+                ''',
+                {
+                    'submission_id': sub.id,
+                    'cf_handle': cf_handle,
+                    'contest_id': sub.contest_id,
+                    'problem_index': sub.problem.index,
+                    'creation_time': str(datetime.fromtimestamp(sub.creation_time_seconds)),
+                    'programming_lang': sub.programming_language,
+                    'verdict': sub.verdict
+                }
+            )
+        except Exception as e:
+            print(e)
+        else:
+            commit_db()
+
     commit_db()
 
     print(f'>> log: successfully updated SUBMISSIONS [cf_handle={cf_handle}]')
