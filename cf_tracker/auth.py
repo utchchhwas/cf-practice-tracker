@@ -306,7 +306,7 @@ def login():
             session['username'] = user['username']  # set username for current session
             session['cf_handle'] = user['cf_handle']  # set cf_handle for current session
 
-            return redirect(url_for('auth.user', username=username))
+            return redirect(url_for('home.home'))
 
         else:
             for error in errors:

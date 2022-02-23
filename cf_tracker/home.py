@@ -236,6 +236,12 @@ def get_solved_since(cf_handle: str, days: int):
 @bp.route('/')
 def home():
     
+    if g.username == None:
+
+        flash('Please log in first', 'warning')
+
+        return redirect(url_for('auth.login'))
+
     cf_handle = g.cf_handle
 
     return render_template("index.html", 
