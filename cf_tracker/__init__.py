@@ -14,14 +14,6 @@ def create_app():
 
     # Markdown(app)
 
-    @app.route("/")
-    def index():
-        
-        labels = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500]
-        data = [10, 20, 30, 10, 30, 20, 50, 10]
-
-        return render_template("index.html", labels=labels, data=data)
-
     from . import db
     db.init_app(app)
 

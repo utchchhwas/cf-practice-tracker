@@ -2,64 +2,105 @@
 
 {% block body %}
 
-<h1>Index page</h1>
+<main>
+
+    <section class="d-flex flex-column align-items-center">
+
+        <div class="mb-5 mt-3 p-3">
+            <h1 style="font-family: 'Oswald', sans-serif;">Welcome To CodeForces Tracker</h1>
+        </div>
+
+        <div class="mb-5">
+
+            <div class="mb-3">
+                <img src="{{ cf_user['title_photo_url'] }}" class="img-fluid"
+                    alt="Codeforces title photo">
+            </div>
+
+            <div class="text-center lh-sm" style="font-family: 'Roboto Serif', sans-serif; font-size: 18px;">
+
+                <p>{{ cf_handle }}</p>
+                
+                {% if cf_user['first_name'] %}
+                <p>{{ cf_user['first_name'] }} {{ cf_user['last_name'] }}</p>
+                {% endif %}
+
+                {% if cf_user['rating'] %}
+                <p>Rating: {{ cf_user['rating'] }} (max. {{ cf_user['max_rating'] }})</p>
+                {% endif %}
+
+                {% if cf_user['rank'] %}
+                <p>Rating: {{ cf_user['rank'] }} (max. {{ cf_user['max_rank'] }})</p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <div class="text-center mb-5">
+
+            <h1 style="font-family: 'Oswald', sans-serif;" class="mb-3">Codeforces Activity</h1>
+
+            <div class="p-3" style="font-family: 'Roboto Serif', sans-serif; font-size: 24px;">
+
+                <p>Problems Tried: {{ total_problems_tried }}</p>
+
+                <p>Problems Solved: {{ total_problems_solved }}</p>
+
+                <p>Solved last week: {{ solved_last_week }}</p>
+
+                <p>Solved last month: {{ solved_last_month }}</p>
+
+                <p>Solved last year: {{ solved_last_year }}</p>
+
+            </div>
+
+        </div>
+
+    </section>
 
 
-<div class="container">
-
-    <div class="container">    
-        <img src="{{ cf_user['title_photo_url'] }}" class="img-fluid" alt="Codeforces title photo">
-    </div>
-
-    <p>{{ cf_handle }}</p>
-
-    {% if cf_user['first_name'] %}
-        <p>        
-            {{ cf_user['first_name'] }} {{ cf_user['last_name'] }}
-        </p>
-    {% endif %}
-
-    <p>Rating: {{ cf_user['rating'] }} (max. {{ cf_user['max_rating'] }})</p>
-
-    <p>Rating: {{ cf_user['rank'] }} (max. {{ cf_user['max_rank'] }})</p>
-
+    <section>
     
-    
-</div>
+        <div class="container p-5" style="width: 80%;">
 
+            <canvas id="ratingChart" style="display: block; box-sizing: border-box; height: 450px; width: 800px;"
+            width="1200" height="600"></canvas>
 
-<div class="container">
-    
-    <h1>Codeforces Activity</h1>
-    
-    <p>Tried {{ total_problems_tried }}</p>
-    
-    <p>Solved {{ total_problems_solved }}</p>
+        </div>
 
-    <p>Solved last week {{ solved_last_week }}</p>
-    <p>Solved last month {{ solved_last_month }}</p>
-    <p>Solved last year {{ solved_last_year }}</p>
+        <div class="container p-5" style="width: 70%;">
 
-</div>
+            <canvas id="tagsChart" style="display: block; box-sizing: border-box; height: 450px; width: 800px;"
+            width="1200" height="600"></canvas>
+
+        </div>
+
+    </section>
+
+</main>
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container" style="width: 60%;">
-    <canvas id="ratingChart"></canvas>
-</div>
-
-
 <script>
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
 
     const ratingChartData = {
         labels: {{ rating_chart['labels'] | tojson }},
         datasets: [{
-            label: {{ cf_handle | tojson }},
-            
+            label: {{ cf_handle | tojson }},    
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
             borderColor: 'rgb(255, 99, 132)',
-            borderWidth: 1,
-            
+            borderWidth: 1,    
             data: {{ rating_chart['data'] | tojson }},
         }]
     };
@@ -95,6 +136,54 @@
     const ratingChart = new Chart(
         document.getElementById('ratingChart'),
         ratingChartConfig
+    );
+
+</script>
+
+<script>
+
+    const tagsChartData = {
+        labels: {{ tags_chart['labels'] | tojson }},
+        datasets: [{
+            label: {{ cf_handle | tojson }},    
+            backgroundColor: {{ tags_chart['color'] | tojson }},
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 1,    
+            data: {{ tags_chart['data'] | tojson }},
+        }]
+    };
+
+    const tagsChartConfig = {
+        type: 'doughnut',
+        data: tagsChartData,
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Solved Problems by Tags',
+                    color: 'black',
+                    font: {
+                        weight: 'bold',
+                        size: 24
+                    }
+                },
+                legend: {
+                    position: 'left'
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    };
+
+    const tagsChart = new Chart(
+        document.getElementById('tagsChart'),
+        tagsChartConfig
     );
 
 </script>
