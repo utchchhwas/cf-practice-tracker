@@ -43,7 +43,7 @@ def make_dict_factory(cur):
 
 # query the database
 def query_db(query, args=[], fetchone=False):
-    print(">> log: executing query", query.strip(), end='\n')
+    # print(">> log: executing query", query.strip(), end='\n')
     cur = get_db().execute(query, args)
     cur.rowfactory = make_dict_factory(cur)
     res = cur.fetchone() if fetchone else cur.fetchall()

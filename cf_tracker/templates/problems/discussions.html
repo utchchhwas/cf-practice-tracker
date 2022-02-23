@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<h1>Discussion Page</h1>
+
+<div class="container p-3">
+    <a class="btn btn-primary btn-lg p-1 d-flex justify-content-center" href="{{ url_for('problems.new_discussion', username=g.username, contest_id=contest_id, problem_index=problem_index) }}" role="button">New Discussion</a>
+  </div>
+
+{% for d in dis %}
+    <div class="container p-3">
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Discussion #{{ d['id'] }} by {{ d['author'] }} (+{{ d['up_votes'] }})</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ d['last_update_time'] }}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Up Vote</h6>
+
+                <p class="card-text">{{ d['content'] }}</p>
+
+            {% if d['author'] == g.username %}
+                <a href="{{ url_for('problems.edit_discussion', username=g.username, contest_id=contest_id, problem_index=problem_index, id=d['id']) }}" class="card-link">Edit</a>
+            {% endif %}
+
+                <a href="{{ url_for('problems.up_vote_discussion', username=g.username, id=d['id'], contest_id=contest_id, problem_index=problem_index) }}" class="card-link">Up Vote</a>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock body %}

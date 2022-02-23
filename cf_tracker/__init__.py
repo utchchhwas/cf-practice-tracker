@@ -1,6 +1,7 @@
 
 from flask import Flask, render_template, url_for, redirect
 from .db import get_db, query_db
+from flaskext.markdown import Markdown
 
 
 # this is the application factory function
@@ -10,6 +11,8 @@ def create_app():
     app.config.from_mapping(
         SECRET_KEY='dev'
     )
+
+    # Markdown(app)
 
     @app.route("/")
     def index():

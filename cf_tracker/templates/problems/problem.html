@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="container p-3">
+    <h1>Problem {{ problem['contest_id'] }}{{ problem['problem_index'] }} - {{ problem['problem_name'] }}</h1>
+</div>
+
+<div class="container p-1">
+    <table class="table table-striped table-hover table-bordered">
+  
+      <tbody>
+  
+          <tr>
+              <th scope="row">Problem ID</th>
+              <td>{{ problem['contest_id'] }}{{ problem['problem_index'] }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Problem Name</th>
+              <td>{{ problem['problem_name'] }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Solve Status</th>
+              <td>{{ solved }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Problem Rating</th>
+              <td>{{ problem['problem_rating'] }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Problem Tags</th>
+              <td>{{ ', '.join(tags) }}</td>
+            </tr>
+          <tr>
+              <th scope="row">Contest Name</th>
+              <td>{{ contest['contest_name'] }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Contest Date</th>
+              <td>{{ contest['start_time'].strftime('%d %B %Y') }}</td>
+          </tr>
+          
+            
+            
+            <tr>
+                <th scope="row">Problem Link</th>
+                <td>
+                    <a href="{{ problem_link }}">{{ problem_link }}</a>
+                  </td>
+            </tr>
+
+          
+      </tbody>
+    </table>
+  
+  </div>
+
+  <div class="container p-3">
+    <a class="btn btn-secondary btn-lg p-1 d-flex justify-content-center" href="{{ url_for('problems.discussion', contest_id=contest_id, problem_index=problem_index) }}" role="button">Show Discussions</a>
+  </div>
+
+  <div class="container p-10">
+
+    <form method="post">
+
+      
+      <div>
+        <label for="" class="form-label"><h3>Personal Comment</h3></label>
+        <textarea class="form-control" name="personal_comment" id="" rows="10">{{ personal_comment }}</textarea>
+        
+      </div>
+      
+      <div class="form-check">
+        <input class="form-check-input" name="todo" type="checkbox" value="TODO" id="flexCheckDefault" {% if todo %}checked{% endif %}>
+        <label class="form-check-label" for="flexCheckDefault">
+          Add to Todo List
+        </label>
+      </div>
+      
+      <div class="d-flex p-4 justify-content-center">
+        <button type="submit" class="btn btn-primary mb-3">Save</button>
+      </div>
+        
+      
+    </form>
+
+  </div>
+
+{% endblock body %}

@@ -39,7 +39,7 @@
       {% for problem in all_problems %}
 
       <tr>
-        <td><a href="{{ problem['problem_link'] }}">{{ problem['problem_id'] }}</a></td>
+        <td><a href="{{ url_for('problems.problem', contest_id=problem['contest_id'], problem_index=problem['problem_index']) }}">{{ problem['problem_id'] }}</a></td>
         <td>{{ problem['problem_name'] }}</td>
         <td>{{ problem['problem_rating'] }}</td>
       </tr>
