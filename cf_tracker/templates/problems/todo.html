@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+<div class="container p-3">
+    <h1>Todo Problems</h1>
+</div>
+
+<div class="container">
+
+  <table class="table table-striped table-hover table-bordered">
+
+    <thead>
+      <tr>
+        <th scope="col">Problem ID</th>
+        <th scope="col">Name</th>
+        <th scope="col">Rating</th>
+        <th scope="col">Tags</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for problem in problems %}
+
+      <tr>
+
+        <td><a href="{{ url_for('problems.problem', contest_id=problem['contest_id'], problem_index=problem['problem_index']) }}">{{ problem['contest_id'] }}{{ problem['problem_index'] }}</a></td>
+        
+        <td {% if problem['solved'] == True %}class="table-success"{% endif %}>{{ problem['problem_name'] }}</td>
+
+        <td>{{ problem['problem_rating'] }}</td>
+
+        <td>{{ ', '.join(problem['tags']) }}</td>
+
+      </tr>
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+</div>
+
+<div class="container p-3">
+  {{ pagination.links }}
+</div>
+
+
+{% endblock body %}

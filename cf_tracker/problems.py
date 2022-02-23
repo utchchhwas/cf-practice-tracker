@@ -44,10 +44,51 @@ def is_solved(cf_handle, contest_id, problem_index):
     return num > 0
 
 
-@bp.route('/new_problems', methods=('GET', 'POST'))
-def new_problems():
+def get_todo_problems(username):
 
-    return 'new problems page'
+    return query_db('''
+            SELECT 
+                *
+            FROM 
+                PROBLEM_LOGS
+                INNER JOIN PROBLEMS
+                USING (CONTEST_ID, PROBLEM_INDEX)
+            WHERE
+                USERNAME = :username
+                AND PROBLEM_STATUS = 'TODO'
+        ''', [username])
+
+
+@bp.route('/todo')
+def todo():
+
+    problems = get_todo_problems(g.username)
+
+    print(problems)
+
+    for problem in problems:
+
+        problem['tags'] = get_problem_tags(problem['contest_id'], problem['problem_index'])
+
+    page, per_page, offset = get_page_args(
+        page_parameter="p", per_page_parameter="pp", pp=100
+    )
+
+    pagination = Pagination(
+        p=page,
+        pp=per_page,
+        total=len(problems),
+        page_parameter="p",
+        per_page_parameter="pp",
+    )
+
+
+    return render_template('problems/todo.html', 
+                            problems=problems[offset:offset+per_page], 
+                            pagination=pagination)
+
+
+
 
 @bp.route("/problems", methods=('GET', 'POST'))
 def problems():
