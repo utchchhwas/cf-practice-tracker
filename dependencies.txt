@@ -1,4 +1,0 @@
-flask
-cx_oracle
-codeforces api
-flask_paginate
