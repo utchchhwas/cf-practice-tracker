@@ -4,7 +4,7 @@ Made for Level-2 Term-2 Database Sessional Project created by [Utchchhwas Singha
 
 Under the kind supervision of **Mohammad Tawhidul Hasan Bhuiyan, Lecturer, CSE, BUET**
 
-### Technologies Used
+## Technologies Used
   **Front-end: HTML, Bootstrap, ChartJS**<br/>
   **Back-end: Flask (Python)**<br/>
   **Database: Oracle 19c**
