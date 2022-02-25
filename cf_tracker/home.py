@@ -1,7 +1,5 @@
 import functools
 from datetime import datetime
-from imp import get_tag
-import codeforces_api
 import cx_Oracle
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
 from werkzeug.security import generate_password_hash, check_password_hash

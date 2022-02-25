@@ -542,13 +542,4 @@ def up_vote_discussion(username, id):
     flash('Discussion up voted', 'success')
 
     return redirect(url_for('problems.discussion', contest_id=contest_id, problem_index=problem_index))
-
-
-
-
-
-
-
-
-
-
+    

@@ -16,7 +16,7 @@ def get_db():
 def commit_db():
     db = g.get('db', None)
     if db is not None:
-        print('>> log: comitting database')
+        # print('>> log: comitting database')
         db.commit()
 
 

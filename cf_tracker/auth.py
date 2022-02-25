@@ -1,7 +1,5 @@
 import functools
 from datetime import datetime
-from tabnanny import check
-from turtle import update
 import codeforces_api
 import cx_Oracle
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
@@ -149,37 +147,45 @@ def insert_or_update_contest_participation(cf_handle):
 
     for rc in rcs:
 
-        get_db().execute('''
-            MERGE INTO CONTEST_PARTICIPATIONS
-            USING dual ON (
-                CF_HANDLE = :cf_handle
-                AND CONTEST_ID = :contest_id
-            )
+        try:
+            get_db().execute('''
+                MERGE INTO CONTEST_PARTICIPATIONS
+                USING dual ON (
+                    CF_HANDLE = :cf_handle
+                    AND CONTEST_ID = :contest_id
+                )
 
-            WHEN NOT MATCHED THEN 
-                INSERT (
-                    CF_HANDLE,
-                    CONTEST_ID,
-                    CONTEST_RANK,
-                    OLD_RATING,
-                    NEW_RATING
-                )
-                VALUES (
-                    :cf_handle,
-                    :contest_id,
-                    :contest_rank,
-                    :old_rating,
-                    :new_rating
-                )
-            ''',
-            {
-                'cf_handle': cf_handle,
-                'contest_id': rc.contest_id,
-                'contest_rank': rc.rank,
-                'old_rating': rc.old_rating,
-                'new_rating': rc.new_rating
-            }
-        )
+                WHEN NOT MATCHED THEN 
+                    INSERT (
+                        CF_HANDLE,
+                        CONTEST_ID,
+                        CONTEST_RANK,
+                        OLD_RATING,
+                        NEW_RATING
+                    )
+                    VALUES (
+                        :cf_handle,
+                        :contest_id,
+                        :contest_rank,
+                        :old_rating,
+                        :new_rating
+                    )
+                ''',
+                {
+                    'cf_handle': cf_handle,
+                    'contest_id': rc.contest_id,
+                    'contest_rank': rc.rank,
+                    'old_rating': rc.old_rating,
+                    'new_rating': rc.new_rating
+                }
+            )
+        except Exception as e:
+
+            print(e.__traceback__)
+            print(e)
+
+            print(f'>> log: contest_id={rc.contest_id}')
+
     commit_db()
 
     print(f'>> log: successfully updated CONTEST_PARTICIPATION [cf_handle={cf_handle}]')

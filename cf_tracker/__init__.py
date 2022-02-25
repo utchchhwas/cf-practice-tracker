@@ -1,7 +1,4 @@
-
-from flask import Flask, render_template, url_for, redirect
-from .db import get_db, query_db
-from flaskext.markdown import Markdown
+from flask import Flask
 
 
 # this is the application factory function

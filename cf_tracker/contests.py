@@ -1,5 +1,3 @@
-from multiprocessing import Condition
-from tkinter.tix import Select
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_paginate import Pagination, get_page_args
 from cf_tracker.db import get_db, query_db
