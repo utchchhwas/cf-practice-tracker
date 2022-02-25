@@ -23,7 +23,7 @@ Under the kind supervision of **Mohammad Tawhidul Hasan Bhuiyan, Lecturer, CSE, 
     ```
     git clone https://github.com/utchchhwas/cf-practice-tracker.git
     ```    
-2. Go to the folder and install all required packages.
+2. Go to the folder and install all the required packages.
 
     ```
     cd cf-practice-tracker
